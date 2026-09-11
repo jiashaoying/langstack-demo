@@ -1,0 +1,96 @@
+# ===== 密钥与环境变量 =====
+.env
+.env.*
+!.env.example
+
+# ===== Python 字节码与缓存 =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# ===== 虚拟环境 =====
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ===== 分发与打包 =====
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ===== 测试与覆盖率 =====
+.pytest_cache/
+.cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# ===== 类型检查与 lint 缓存 =====
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+# ===== Jupyter Notebook =====
+.ipynb_checkpoints/
+*checkpoint.ipynb
+
+# ===== LLM / RAG 运行时产物 =====
+# LlamaIndex 持久化索引
+storage/
+# 向量数据库本地目录
+chroma_db/
+.weaviate/
+# LangGraph / SQLite 检查点
+*.sqlite
+*.sqlite3
+*.db
+# LangSmith / LangChain 本地追踪
+.langchain_db/
+
+# ===== 模型与数据（大文件不入库）=====
+*.bin
+*.gguf
+models/
+# 注意：data/eval_dataset.jsonl 评测数据集需要保留
+data/*.pdf
+data/*.docx
+data/*.txt
+data/index/
+
+# ===== 日志 =====
+*.log
+logs/
+
+# ===== IDE / 编辑器 =====
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ===== 操作系统 =====
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ===== Docker 运行时 =====
+docker-data/

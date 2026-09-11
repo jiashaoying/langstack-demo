@@ -1,0 +1,35 @@
+# 核心：LangChain 全家桶
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+langchain-anthropic>=0.2.0
+langchain-community>=0.3.0
+
+# 编排：LangGraph
+langgraph>=0.2.0
+
+# 数据层：LlamaIndex
+llama-index>=0.11.0
+llama-index-core>=0.11.0
+llama-index-embeddings-openai>=0.2.0
+llama-index-llms-openai>=0.2.0
+
+# 可选进阶：DeepAgents（需 Python 3.11+）
+# deepagents>=0.1.0
+
+# 观测：LangSmith
+langsmith>=0.1.0
+
+# 工具
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+
+# 交互与界面
+jupyter>=1.0.0
+gradio>=4.0.0
+
+# 评测与观测 (LangSmith)
+langsmith>=0.1.0
+deepeval>=0.17.0
+ragas>=0.1.0
+pytest>=8.0.0

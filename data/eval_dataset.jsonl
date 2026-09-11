@@ -1,0 +1,3 @@
+{"inputs": {"query": "LangGraph 和 DeepAgents 怎么选？"}, "outputs": {"expected_keywords": ["LangGraph", "DeepAgents", "状态", "循环"], "rubric": "答案应清晰对比两者定位：LangGraph 是图编排引擎，DeepAgents 是满配 Agent harness。"}}
+{"inputs": {"query": "什么是 Checkpointer？"}, "outputs": {"expected_keywords": ["持久化", "状态", "恢复", "thread"], "rubric": "答案应说明 Checkpointer 负责状态持久化、断点恢复、支持人机协同。"}}
+{"inputs": {"query": "LlamaIndex 在项目里负责什么？"}, "outputs": {"expected_keywords": ["检索", "索引", "文档", "RAG"], "rubric": "答案应说明 LlamaIndex 是数据/RAG 层，负责文档加载、索引、检索。"}}

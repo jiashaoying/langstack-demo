@@ -1,0 +1,72 @@
+version: "3.9"
+
+# ============================================================
+# LangStack Demo —— Docker Compose 编排
+# ============================================================
+# 使用:
+#   docker compose up web          # 启动 Gradio Web UI (默认)
+#   docker compose up jupyter      # 启动 Jupyter Notebook
+#   docker compose run --rm verify # 跑离线验证
+#   docker compose build           # 重新构建
+# ============================================================
+
+services:
+  # ----------------------------------------------------------
+  # 服务 1: Web UI (Gradio)
+  # ----------------------------------------------------------
+  web:
+    build: .
+    container_name: langstack-web
+    ports:
+      - "7860:7860"
+    env_file:
+      - .env
+    volumes:
+      # 挂载数据目录，放入你的文档即可被 RAG 检索
+      - ./data:/app/data
+      # 挂载源码，改代码无需重新构建
+      - ./src:/app/src
+    restart: unless-stopped
+    command: python src/ui.py --server-name 0.0.0.0 --server-port 7860
+
+  # ----------------------------------------------------------
+  # 服务 2: Jupyter Notebook (交互式学习)
+  # ----------------------------------------------------------
+  jupyter:
+    build: .
+    container_name: langstack-jupyter
+    ports:
+      - "8888:8888"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./notebooks:/app/notebooks
+      - ./src:/app/src
+    command: >
+      jupyter notebook
+      --ip=0.0.0.0
+      --port=8888
+      --no-browser
+      --allow-root
+      --NotebookApp.token=''
+      --NotebookApp.password=''
+
+  # ----------------------------------------------------------
+  # 服务 3: CLI / 验证 (一次性容器)
+  #   注：默认 python scripts/verify.py 在依赖缺失时会自动
+  #   降级为 verify_pure.py 的纯逻辑校验，保证 CI 一定能跑通。
+  #   正式环境（Docker 镜像）已装全依赖，会跑完整版。
+  # ----------------------------------------------------------
+  verify:
+    build: .
+    container_name: langstack-verify
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./scripts:/app/scripts
+      - ./src:/app/src
+    command: python scripts/verify.py
+    profiles:
+      - tools
