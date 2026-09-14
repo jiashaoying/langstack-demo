@@ -9,7 +9,6 @@ main.py —— 统一 CLI 入口
     LANGSMITH_TRACING=true  开启后可在 LangSmith 后台看完整 trace
 """
 import argparse
-import sys
 
 from src.config import settings
 
@@ -32,10 +31,12 @@ def main():
     if args.deep:
         # ---- 进阶：DeepAgents ----
         from src.deep_research import run_deep_research
+
         answer = run_deep_research(question)
     else:
         # ---- 默认：LangGraph 工作流 ----
         from src.graph import run_research
+
         answer = run_research(question)
 
     print("\n📝 最终答案：\n")

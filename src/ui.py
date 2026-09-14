@@ -11,11 +11,11 @@ import argparse
 
 import gradio as gr
 from dotenv import load_dotenv
-load_dotenv()
+from langchain_core.messages import HumanMessage
 
 from src.graph import build_graph
-from src.llm import get_llm
-from langchain_core.messages import HumanMessage
+
+load_dotenv()
 
 graph = build_graph()
 
@@ -31,6 +31,7 @@ def run_research(query: str, use_deep: bool = False):
     try:
         if use_deep:
             from deepagents import create_deep_agent
+
             steps.append("🚀 使用 DeepAgents 满配模式")
             agent = create_deep_agent(
                 model="openai:gpt-4o-mini",
@@ -67,7 +68,7 @@ def run_research(query: str, use_deep: bool = False):
         return "\n".join(steps), final_answer
 
     except Exception as e:
-        return f"❌ 错误: {str(e)}", ""
+        return f"❌ 错误: {e!s}", ""
 
 
 def main():
@@ -78,8 +79,7 @@ def main():
 
     with gr.Blocks(title="深度研究助手 Demo", theme=gr.themes.Soft()) as demo:
         gr.Markdown(
-            "# 🔬 深度研究助手 Demo\n"
-            "基于 **LangChain + LlamaIndex + LangGraph + DeepAgents**"
+            "# 🔬 深度研究助手 Demo\n" "基于 **LangChain + LlamaIndex + LangGraph + DeepAgents**"
         )
 
         with gr.Row():

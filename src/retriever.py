@@ -12,6 +12,7 @@ retriever.py —— LlamaIndex 数据/RAG 层
   时才会触发真实 import。
 """
 from pathlib import Path
+
 from src.config import settings
 
 # 类型提示占位：函数内会惰性导入真实类覆盖这些名字
@@ -24,7 +25,8 @@ BaseRetriever = object  # type: ignore
 def build_index_from_dir(data_dir: str | None = None):
     """从 data_dir 加载文档并构建向量索引。"""
     # 惰性导入：仅在真正构建索引时才依赖 llama_index
-    from llama_index.core import Document, VectorStoreIndex, Settings as LlamaSettings
+    from llama_index.core import Document, VectorStoreIndex
+    from llama_index.core import Settings as LlamaSettings
     from llama_index.embeddings.openai import OpenAIEmbedding
 
     root = Path(data_dir or settings.DATA_DIR)
@@ -34,9 +36,15 @@ def build_index_from_dir(data_dir: str | None = None):
     docs: list = []
     for path in root.rglob("*"):
         if path.suffix.lower() in {".txt", ".md"}:
-            docs.append(Document(text=path.read_text(encoding="utf-8"), metadata={"source": str(path)}))
+            docs.append(
+                Document(
+                    text=path.read_text(encoding="utf-8"),
+                    metadata={"source": str(path)},
+                )
+            )
         elif path.suffix.lower() == ".pdf":
             from llama_index.readers.file import PyMuPDFReader
+
             docs.extend(PyMuPDFReader().load_data(path))
 
     if not docs:

@@ -8,16 +8,29 @@ verify.py —— 离线验证脚本（不消耗真实 API）
 
 运行：python scripts/verify.py
 
-注意：langgraph / llama_index 采用惰性导入，本脚本通过 mock 让它们
-      无需真实安装即可完成结构验证。
+依赖策略：
+- 装齐 langgraph + langchain_core 时，跑「完整验证」（真实 LangGraph API + mock LLM）；
+- 缺失依赖时，自动降级为 verify_pure.py 的纯逻辑校验，保证任何环境都能跑。
 """
+import importlib.util
 import sys
 import types
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+
+def _has(module_name: str) -> bool:
+    """依赖是否真实可导入（注意：与「是否已 import」无关）。"""
+    return importlib.util.find_spec(module_name) is not None
+
+
+HAS_LANGGRAPH = _has("langgraph")
+HAS_LANGCHAIN_CORE = _has("langchain_core")
+# 仅当真实依赖齐全时才跑完整验证，否则降级
+FULL_MODE = HAS_LANGGRAPH and HAS_LANGCHAIN_CORE
 
 
 # ---------------------------------------------------------------
@@ -89,25 +102,33 @@ def _install_llama_index_stub():
     sys.modules["llama_index.readers.file"] = MagicMock()
 
 
-_install_langgraph_stub()
-_install_llama_index_stub()
+# 仅在依赖缺失的降级路径下注入桩，避免污染真实环境
+if not FULL_MODE:
+    if not HAS_LANGGRAPH:
+        _install_langgraph_stub()
+    _install_llama_index_stub()
 
 
 # ===============================================================
 # 测试用例
 # ===============================================================
 def test_graph_structure():
-    """验证图能编译、节点/边/条件边齐全。"""
+    """验证图能编译、节点/条件边齐全（基于真实 LangGraph API）。"""
     from src.graph import build_graph
 
     app = build_graph()
     assert app is not None
-    # 检查关键节点都存在
+
+    graph = app.get_graph()
+    node_names = set(graph.nodes.keys())
     expected = {"plan", "retrieve", "reflect", "write"}
-    assert expected.issubset(set(app.nodes.keys())), f"缺少节点: {expected - set(app.nodes.keys())}"
-    # 应有条件边（reflect → retrieve/write）
-    assert len(app.cond_edges) >= 1, "应有至少一条条件边"
-    print("✅ 图编译成功，节点:", list(app.nodes.keys()))
+    assert expected.issubset(node_names), f"缺少节点: {expected - node_names}"
+
+    # 条件边（reflect → retrieve/write）在 Graph.edges 上以 conditional=True 标记
+    cond_edges = [e for e in graph.edges if getattr(e, "conditional", False)]
+    assert cond_edges, "应有至少一条条件边"
+    print("✅ 图编译成功，节点:", sorted(node_names))
+    print("✅ 条件边数量:", len(cond_edges))
 
 
 def test_full_flow():
@@ -122,7 +143,9 @@ def test_full_flow():
     call_log = []
 
     def fake_invoke(messages, **kw):
-        sys_msg = next((m for m in messages if getattr(m, "type", "") == "system"), None)
+        sys_msg = next(
+            (m for m in messages if getattr(m, "type", "") == "system"), None
+        )
         text = sys_msg.content if sys_msg else ""
         if "研究要点" in text:
             call_log.append("plan")
@@ -133,9 +156,9 @@ def test_full_flow():
         call_log.append("write")
         return MagicMock(content="【Mock 最终答案】基于资料得出结论。")
 
-    with patch("src.graph.format_context", fake_format_context), \
-         patch("src.graph.build_index_from_dir", return_value=None), \
-         patch("src.graph.get_llm") as mock_get:
+    with patch("src.graph.format_context", fake_format_context), patch(
+        "src.graph.build_index_from_dir", return_value=None
+    ), patch("src.graph.get_llm") as mock_get:
         mock_get.return_value = MagicMock(invoke=fake_invoke)
         answer = run_research("测试问题")
 
@@ -162,11 +185,19 @@ def test_reflect_loop():
 
 
 if __name__ == "__main__":
-    missing = [m for m in ("langgraph", "langchain_core") if m not in sys.modules]
-    if missing:
+    if not FULL_MODE:
+        missing = [
+            name
+            for name, ok in (
+                ("langgraph", HAS_LANGGRAPH),
+                ("langchain_core", HAS_LANGCHAIN_CORE),
+            )
+            if not ok
+        ]
         # 无依赖环境：跑纯逻辑兜底验证
         print(f"⚠️ 未安装 {missing}，自动降级运行 verify_pure.py 的纯逻辑校验")
         from scripts.verify_pure import test_branch, test_state_flow
+
         test_branch()
         test_state_flow()
         print("\n🎉 降级验证通过（安装依赖后可跑完整版：python scripts/verify.py）")

@@ -1,0 +1,11 @@
+# Ruff 配置 —— 显式固定规则集，保证本地与 CI 结果一致。
+# （不写配置会跟随 ruff 版本的默认规则，容易出现「本地过、CI 挂」）
+
+line-length = 100
+target-version = "py311"
+
+[lint]
+# pycodestyle(E/W) + pyflakes(F) + isort(I)
+select = ["E", "F", "W", "I"]
+# 行长交给 black 统一处理，避免两套工具互相打架
+ignore = ["E501"]

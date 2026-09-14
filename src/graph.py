@@ -10,12 +10,13 @@ graph.py —— LangGraph 有状态研究工作流
 State 是跨节点共享的「黑板」。Checkpointer 提供持久化（断点恢复/人机协同）。
 """
 from typing import TypedDict
-from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.memory import MemorySaver
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
-from src.llm import get_llm, RESEARCHER_SYSTEM_PROMPT
-from src.retriever import build_index_from_dir, get_retriever, format_context
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import END, StateGraph
+
+from src.llm import RESEARCHER_SYSTEM_PROMPT, get_llm
+from src.retriever import build_index_from_dir, format_context, get_retriever
 
 
 class ResearchState(TypedDict, total=False):
@@ -32,10 +33,12 @@ class ResearchState(TypedDict, total=False):
 def plan_node(state: ResearchState) -> dict:
     """步骤1：把问题拆成研究计划。"""
     llm = get_llm()
-    msg = llm.invoke([
-        SystemMessage(content="把用户问题拆成 3-5 条研究要点，用换行分隔。"),
-        HumanMessage(content=state["query"]),
-    ])
+    msg = llm.invoke(
+        [
+            SystemMessage(content="把用户问题拆成 3-5 条研究要点，用换行分隔。"),
+            HumanMessage(content=state["query"]),
+        ]
+    )
     return {"plan": msg.content}
 
 
@@ -53,23 +56,28 @@ def retrieve_node(state: ResearchState) -> dict:
 def reflect_node(state: ResearchState) -> dict:
     """步骤3：反思资料是否足够。"""
     llm = get_llm()
-    msg = llm.invoke([
-        SystemMessage(content=(
-            "判断当前资料是否足以回答。若足够回复『OK』；"
-            "否则回复『MORE: <还需要什么>』。"
-        )),
-        HumanMessage(content=f"问题：{state['query']}\n资料：\n{state.get('context', '')}"),
-    ])
+    msg = llm.invoke(
+        [
+            SystemMessage(content=("判断当前资料是否足以回答。若足够回复『OK』；" "否则回复『MORE: <还需要什么>』。")),
+            HumanMessage(
+                content=f"问题：{state['query']}\n资料：\n{state.get('context', '')}"
+            ),
+        ]
+    )
     return {"reflection": msg.content}
 
 
 def write_node(state: ResearchState) -> dict:
     """步骤4：综合写出最终答案。"""
     llm = get_llm(temperature=0.2)
-    msg = llm.invoke([
-        SystemMessage(content=RESEARCHER_SYSTEM_PROMPT),
-        HumanMessage(content=f"问题：{state['query']}\n\n资料：\n{state.get('context', '')}"),
-    ])
+    msg = llm.invoke(
+        [
+            SystemMessage(content=RESEARCHER_SYSTEM_PROMPT),
+            HumanMessage(
+                content=f"问题：{state['query']}\n\n资料：\n{state.get('context', '')}"
+            ),
+        ]
+    )
     return {"answer": msg.content, "messages": [AIMessage(content=msg.content)]}
 
 
@@ -93,8 +101,7 @@ def build_graph():
     graph.add_edge("plan", "retrieve")
     graph.add_edge("retrieve", "reflect")
     graph.add_conditional_edges(
-        "reflect", should_continue,
-        {"retrieve": "retrieve", "write": "write"}
+        "reflect", should_continue, {"retrieve": "retrieve", "write": "write"}
     )
     graph.add_edge("write", END)
 
@@ -106,5 +113,7 @@ def run_research(query: str) -> str:
     """便捷入口：跑一次研究流程，返回最终答案字符串。"""
     app = build_graph()
     config = {"configurable": {"thread_id": "default"}}
-    final = app.invoke({"query": query, "messages": [HumanMessage(content=query)]}, config=config)
+    final = app.invoke(
+        {"query": query, "messages": [HumanMessage(content=query)]}, config=config
+    )
     return final.get("answer", "")

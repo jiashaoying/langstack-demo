@@ -5,6 +5,7 @@ llm.py —— LangChain 模型抽象层
 业务代码只依赖 ChatModel 协议，不关心底层是 OpenAI / Anthropic / Google。
 """
 from langchain_core.language_models import BaseChatModel
+
 from src.config import settings
 
 
@@ -17,10 +18,12 @@ def get_llm(temperature: float = 0.0) -> BaseChatModel:
 
     if provider == "openai":
         from langchain_openai import ChatOpenAI
+
         return ChatOpenAI(model=settings.LLM_MODEL, temperature=temperature)
 
     if provider == "anthropic":
         from langchain_anthropic import ChatAnthropic
+
         return ChatAnthropic(model=settings.LLM_MODEL, temperature=temperature)
 
     raise ValueError(f"Unsupported LLM_PROVIDER: {provider}")

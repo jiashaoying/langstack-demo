@@ -20,8 +20,8 @@ LangSmith 集成（可选）：
 """
 import os
 import sys
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from dataclasses import dataclass, field, asdict
 from typing import Callable
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -85,19 +85,24 @@ def keyword_scorer(case: EvalCase, answer: str) -> EvalResult:
 
 def llm_judge_scorer(case: EvalCase, answer: str) -> EvalResult:
     """LLM-as-judge 评分（需真实模型）。"""
+    from langchain_core.messages import HumanMessage, SystemMessage
+
     from src.llm import get_llm
-    from langchain_core.messages import SystemMessage, HumanMessage
 
     judge = get_llm(temperature=0)
-    msg = judge.invoke([
-        SystemMessage(content="你是严格的评分裁判。按 rubric 打分 0-1，只输出数字。"),
-        HumanMessage(content=(
-            f"问题：{case.query}\n"
-            f"Rubric：{case.rubric}\n"
-            f"待评答案：{answer}\n"
-            f"评分（0-1）："
-        )),
-    ])
+    msg = judge.invoke(
+        [
+            SystemMessage(content="你是严格的评分裁判。按 rubric 打分 0-1，只输出数字。"),
+            HumanMessage(
+                content=(
+                    f"问题：{case.query}\n"
+                    f"Rubric：{case.rubric}\n"
+                    f"待评答案：{answer}\n"
+                    f"评分（0-1）："
+                )
+            ),
+        ]
+    )
     try:
         score = float(msg.content.strip().split()[0])
     except ValueError:
@@ -112,6 +117,7 @@ def run_target(query: str) -> str:
     """默认用 mock；设 USE_REAL_API=true 时调真实管线。"""
     if os.getenv("USE_REAL_API", "").lower() == "true":
         from src.graph import run_research
+
         return run_research(query)
 
     # 离线 mock：返回含关键词的结构化答案

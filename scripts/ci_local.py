@@ -45,13 +45,19 @@ def main():
     results["lint"] = step("Lint (ruff)", lint)
 
     # 2. verify_pure
-    results["verify_pure"] = step("Verify Pure", lambda: run_cmd("python scripts/verify_pure.py"))
+    results["verify_pure"] = step(
+        "Verify Pure", lambda: run_cmd("python scripts/verify_pure.py")
+    )
 
     # 3. verify_full（依赖缺失会自动降级）
-    results["verify_full"] = step("Verify Full", lambda: run_cmd("python scripts/verify.py"))
+    results["verify_full"] = step(
+        "Verify Full", lambda: run_cmd("python scripts/verify.py")
+    )
 
     # 4. evaluate（离线）
-    results["evaluate"] = step("Evaluate (offline)", lambda: run_cmd("python scripts/evaluate.py"))
+    results["evaluate"] = step(
+        "Evaluate (offline)", lambda: run_cmd("python scripts/evaluate.py")
+    )
 
     # 汇总
     print(f"\n{'=' * 50}\n📊 汇总\n{'=' * 50}")

@@ -34,7 +34,13 @@ def test_branch():
 
 def test_state_flow():
     """模拟 plan → retrieve → reflect → write 的状态流转。"""
-    state = {"query": "测试", "iterations": 0, "plan": "", "context": "", "reflection": ""}
+    state = {
+        "query": "测试",
+        "iterations": 0,
+        "plan": "",
+        "context": "",
+        "reflection": "",
+    }
 
     # plan
     state["plan"] = "1. 定位 2. 场景"

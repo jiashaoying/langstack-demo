@@ -28,8 +28,7 @@ pydantic>=2.0.0
 jupyter>=1.0.0
 gradio>=4.0.0
 
-# 评测与观测 (LangSmith)
-langsmith>=0.1.0
+# 评测
 deepeval>=0.17.0
 ragas>=0.1.0
 pytest>=8.0.0

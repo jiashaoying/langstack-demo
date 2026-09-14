@@ -272,18 +272,21 @@ lint → verify-pure → verify-full → evaluate → docker build → gate
 
 ## 🔑 模型切换
 
-修改 `.env` 的 `DEFAULT_MODEL`，或在代码中直接指定：
+切换供应商只需改 `.env`（`get_llm()` 会从 `src/config.py` 读取配置）：
+
+```env
+LLM_PROVIDER=openai          # openai / anthropic
+LLM_MODEL=gpt-4o-mini
+```
 
 ```python
 from src.llm import get_llm
 
-llm = get_llm()                      # 默认 gpt-4o-mini
-# llm = get_llm("anthropic:claude-sonnet-4-6")
-# llm = get_llm("google_genai:gemini-2.0-flash")
-# llm = get_llm("ollama:llama3.2")
+llm = get_llm()                      # 读取 .env 的 LLM_PROVIDER / LLM_MODEL
+llm = get_llm(temperature=0.2)
 ```
 
-业务代码无需改动，改配置即切换供应商。
+业务代码无需改动，改配置即切换供应商（当前支持 `openai` / `anthropic`，新增供应商只需在 `src/llm.py` 里加一个分支）。
 
 ---
 
