@@ -217,12 +217,16 @@ def test_ui_stream_flow():
         "src.graph.format_context", return_value="【Mock 资料】"
     ), patch("src.graph.get_llm") as mock_get:
         mock_get.return_value = MagicMock(invoke=fake_invoke)
-        steps, answer = ui.run_research("测试问题", use_deep=False)
+        # run_research 是生成器：必须先消费完，最后一次 yield 才是最终结果
+        updates = list(ui.run_research("测试问题", use_deep=False))
 
+    steps, answer = updates[-1]
+    # 流式要求：过程须按节点分批产出；若退回「一次性返回」，这里会先挂
+    assert len(updates) >= 4, f"过程应逐步 yield，实际仅 {len(updates)} 次"
     assert "❌" not in steps, f"UI 执行失败：{steps}"
     assert "执行节点" in steps, f"未展示节点过程：{steps}"
     assert "Mock 最终答案" in answer, f"答案异常：{answer}"
-    print("✅ UI stream 流程通过（updates 模式解包正常）")
+    print(f"✅ UI stream 流程通过（共 yield {len(updates)} 次，逐步产出）")
 
 
 if __name__ == "__main__":
