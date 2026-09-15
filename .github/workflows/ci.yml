@@ -99,6 +99,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Prepare .env for compose
+        # compose 的 env_file 在文件缺失时会直接报错退出，而 .env 不在版本库内，
+        # CI checkout 出来没有它，docker job 因此一直失败。
+        # verify 跑的是 mock LLM，用 .env.example 的占位值即可。
+        run: cp .env.example .env
+
       - name: Build Docker image
         run: docker compose build
 
