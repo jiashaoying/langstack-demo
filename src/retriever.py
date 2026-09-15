@@ -22,12 +22,41 @@ LlamaSettings = None  # type: ignore
 BaseRetriever = object  # type: ignore
 
 
+def build_embed_model():
+    """按 EMBEDDING_PROVIDER 构造 embedding 模型。
+
+    同样惰性导入：只在真正要向量化时才 import 对应后端，
+    离线验证（mock 掉检索器）不装这些依赖也能跑。
+    """
+    provider = settings.EMBEDDING_PROVIDER.lower()
+
+    if provider == "local":
+        # 本地 Sentence 模型：零 API 成本、离线可用、不依赖任何平台开通，
+        # 首次运行自动下载模型（约 90MB）。
+        from llama_index.embeddings.fastembed import FastEmbedEmbedding
+
+        return FastEmbedEmbedding(model_name=settings.EMBEDDING_MODEL)
+
+    if provider == "openai":
+        # 面向方舟 / OpenAI 官方 / 通义 / 本地 vLLM 等 OpenAI 兼容服务。
+        # 注意不能用 OpenAIEmbedding：它会把 model 强转成 OpenAI 官方模型枚举，
+        # 任何第三方模型名都会被 ValueError 拦下，连 HTTP 请求都发不出去。
+        from llama_index.embeddings.openai_like import OpenAILikeEmbedding
+
+        return OpenAILikeEmbedding(
+            model_name=settings.EMBEDDING_MODEL,
+            api_base=settings.OPENAI_BASE_URL or None,
+            api_key=settings.OPENAI_API_KEY or None,
+        )
+
+    raise ValueError(f"Unsupported EMBEDDING_PROVIDER: {provider}")
+
+
 def build_index_from_dir(data_dir: str | None = None):
     """从 data_dir 加载文档并构建向量索引。"""
     # 惰性导入：仅在真正构建索引时才依赖 llama_index
     from llama_index.core import Document, VectorStoreIndex
     from llama_index.core import Settings as LlamaSettings
-    from llama_index.embeddings.openai import OpenAIEmbedding
 
     root = Path(data_dir or settings.DATA_DIR)
     if not root.exists():
@@ -50,7 +79,7 @@ def build_index_from_dir(data_dir: str | None = None):
     if not docs:
         raise RuntimeError(f"{root} 下没有可加载的 .txt/.md/.pdf 文件")
 
-    LlamaSettings.embed_model = OpenAIEmbedding(model=settings.EMBEDDING_MODEL)
+    LlamaSettings.embed_model = build_embed_model()
     return VectorStoreIndex.from_documents(docs)
 
 

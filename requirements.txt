@@ -11,7 +11,11 @@ langgraph>=0.2.0
 # 数据层：LlamaIndex
 llama-index>=0.11.0
 llama-index-core>=0.11.0
-llama-index-embeddings-openai>=0.2.0
+llama-index-embeddings-openai-like>=0.3.0
+
+# 默认 embedding 后端：本地模型，零 API 成本、离线可用
+fastembed>=0.6.0
+llama-index-embeddings-fastembed>=0.3.0
 llama-index-llms-openai>=0.2.0
 
 # 可选进阶：DeepAgents（需 Python 3.11+）
