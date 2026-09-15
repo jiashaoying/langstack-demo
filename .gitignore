@@ -72,6 +72,12 @@ data/*.pdf
 data/*.docx
 data/*.txt
 data/index/
+# 例外：这两份文档必须入库，否则新克隆环境与 CI 的 data/ 是空的：
+#   sample.txt       —— 示例文档。README 让用户把资料放进 data/，但示例本身不入库的话，
+#                       clone 下来 RAG 无文档可检索，与「开箱即用」矛盾
+#   internal_faq.txt —— RAG 评测的输入，检索不到它 requires_rag 用例会直接判失败
+!data/sample.txt
+!data/internal_faq.txt
 
 # ===== 日志 =====
 *.log

@@ -1,0 +1,17 @@
+LangChain 产品体系概述
+
+LangChain 是 LangChain AI 团队推出的开源框架，用于构建基于大语言模型的应用。
+其核心组件包括：Models（模型）、Prompts（提示）、Indexes（索引）、Chains（链）、Agents（代理）、Memory（记忆）。
+
+LangGraph 是同一团队的有状态工作流编排框架，采用图（节点+边）模型，
+支持循环、条件分支、Checkpointer 持久化、断点恢复与人机协同，
+适合复杂 Agent 与多智能体系统。
+
+DeepAgents 是在 LangChain + LangGraph 之上构建的满配 Agent harness，
+内置规划（todo）、虚拟文件系统、子代理（subagents）、上下文压缩与技能系统，
+适用于深度研究、编程助手等长任务场景。
+
+LlamaIndex 是专注于数据/RAG 的框架，擅长文档加载、解析、索引与检索，
+可作为 LangChain / LangGraph / DeepAgents 的数据层。
+
+LangSmith 是商业平台，提供追踪、评测、提示管理、部署与治理，框架无关。
