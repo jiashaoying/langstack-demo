@@ -50,7 +50,7 @@
 │  (文档 → 索引 → 向量检索 → 返回上下文)      │
 ├─────────────────────────────────────────────┤
 │  LLM 调用通过 LangChain 统一接口             │  ← 模型层
-│  (OpenAI / Anthropic / Google / 本地)       │
+│  (OpenAI / Anthropic / 火山方舟)            │
 ├─────────────────────────────────────────────┤
 │  可选：DeepAgents 满配模式                   │  ← 自主层
 │  (规划 + 子代理 + 虚拟文件系统 + 记忆)       │
@@ -116,13 +116,38 @@ pip install -r requirements.txt
 
 ```bash
 cp .env.example .env
-# 编辑 .env，填入你的 API Key
 ```
 
+模板默认已配好**火山方舟**（国内可直接访问，新用户有免费额度），你只需替换一个值：
+
 ```env
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
-GOOGLE_API_KEY=...
+LLM_PROVIDER=openai                                      # 保持不变
+LLM_MODEL=deepseek-v4-flash-ga-260731
+OPENAI_API_KEY=替换为你的方舟APIKey                      # ← 只改这一行
+OPENAI_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
+```
+
+> **为什么 provider 还是 `openai`？**
+> 方舟对外提供 OpenAI 兼容接口，所以不用换 SDK，只要把请求地址改成方舟即可，
+> `src/llm.py` 一行都不用动。
+
+在正式调用前，还需在 [方舟控制台](https://console.volcengine.com/ark) 完成两步准备：
+
+| 步骤 | 位置 | 不做会怎样 |
+| :--- | :--- | :--- |
+| 实名认证 | 火山引擎账号中心 | 无法调用任何模型 |
+| 开通模型 | 控制台 → 开通管理 | 报 `404 ModelNotOpen` |
+
+> ⚠️ 方舟和多数平台不同：**拿到 Key 不等于能用模型**，每个模型都要单独开通，
+> 否则会收到 `404` 让你误以为模型不存在。这是新手最常踩的坑。
+>
+> 💰 完成实名后，每个模型送 50 万 tokens（30 天有效），跑通本 Demo 绰绰有余。
+
+要用 OpenAI 官方或 Anthropic Claude，改注释即可，见下方 [模型切换](#模型切换) 一节。
+
+可选：开启 LangSmith 全链路追踪
+
+```env
 LANGSMITH_TRACING=true
 LANGSMITH_API_KEY=lsv2_...
 ```
@@ -266,6 +291,10 @@ lint → verify-pure → verify-full → evaluate → docker build → gate
 | DeepAgents 报 ImportError | `pip install deepagents`（需 Python 3.11+） |
 | LlamaIndex 报 ImportError | `pip install llama-index`（`verify.py` 无需此步） |
 | API 报 401 | 检查 `.env` 中 API Key 是否正确 |
+| 方舟 `401 AuthenticationError` | Key 无效或过期 → 方舟控制台 → API Key 管理重新生成 |
+| 方舟 `403 AccessDenied` | 模型没开通 → 控制台 → 开通管理 → 激活该模型 |
+| 方舟 `404 InvalidEndpointOrModel` | `LLM_MODEL` 与控制台显示的模型 ID 不一致，核对后重填 |
+| 方舟 `403 AccountOverdueError` | 火山账户余额不足 → 费用中心充值 |
 | Gradio 端口占用 | `python -m src.ui --server-port 8080` |
 
 ---
@@ -286,7 +315,31 @@ llm = get_llm()                      # 读取 .env 的 LLM_PROVIDER / LLM_MODEL
 llm = get_llm(temperature=0.2)
 ```
 
-业务代码无需改动，改配置即切换供应商（当前支持 `openai` / `anthropic`，新增供应商只需在 `src/llm.py` 里加一个分支）。
+业务代码无需改动，改配置即切换供应商（新增供应商只需在 `src/llm.py` 里加一个分支）。
+
+### 接 OpenAI 兼容平台（方舟 / DeepSeek / 通义 / 本地 vLLM）
+
+凡是提供 OpenAI 兼容接口的服务，都**不需要改代码**：保持 `LLM_PROVIDER=openai`，
+再加一行 `OPENAI_BASE_URL` 指向该平台即可。`get_llm()` 内部用的是 `ChatOpenAI`，
+请求会发到你指定的地址。
+
+```env
+LLM_PROVIDER=openai
+LLM_MODEL=deepseek-v4-flash-ga-260731
+OPENAI_API_KEY=<平台给你的 Key>
+OPENAI_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
+```
+
+| 平台 | `OPENAI_BASE_URL` |
+| :--- | :--- |
+| 火山方舟 | `https://ark.cn-beijing.volces.com/api/v3` |
+| OpenAI 官方 | 不设置该行（留空反而会报错） |
+| 本地 Ollama / vLLM | `http://localhost:11434/v1` |
+
+> 只有**不兼容 OpenAI 协议**的厂商（如 Anthropic）才需要在 `src/llm.py` 里新增分支。
+
+⚠️ **切换时记得同时改 `LLM_MODEL`**：它是具体模型名，OpenAI 的 `gpt-4o-mini`
+不能用在 `anthropic` 上，反之亦然。`src/llm.py` 当前实现了 `openai` 和 `anthropic` 两个分支。
 
 ---
 
