@@ -12,6 +12,7 @@ verify.py —— 离线验证脚本（不消耗真实 API）
 - 装齐 langgraph + langchain_core 时，跑「完整验证」（真实 LangGraph API + mock LLM）；
 - 缺失依赖时，自动降级为 verify_pure.py 的纯逻辑校验，保证任何环境都能跑。
 """
+
 import importlib.util
 import sys
 import types
@@ -163,7 +164,9 @@ def test_full_flow():
         answer = run_research("测试问题")
 
     assert "Mock 最终答案" in answer, f"意外输出：{answer}"
-    assert {"plan", "reflect", "write"}.issubset(set(call_log)), f"调用顺序异常: {call_log}"
+    assert {"plan", "reflect", "write"}.issubset(
+        set(call_log)
+    ), f"调用顺序异常: {call_log}"
     print(f"✅ 完整流程通过，调用顺序：{' → '.join(call_log)}")
     print(f"   输出：{answer}")
 

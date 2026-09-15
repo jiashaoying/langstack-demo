@@ -5,6 +5,7 @@ ci_local.py —— 本地模拟 CI 流程（不依赖 GitHub Actions）
 依次跑：lint(bash) → verify_pure → verify_full → evaluate
 用法：python scripts/ci_local.py
 """
+
 import subprocess
 import sys
 from pathlib import Path

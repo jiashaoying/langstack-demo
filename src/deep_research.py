@@ -7,6 +7,7 @@ deep_research.py —— DeepAgents 满配自主研究（进阶入口）
 注意：需要 Python 3.11+ 且已 `pip install deepagents`。
 本模块做了惰性导入，环境不满足时自动跳过，不影响其它模块运行。
 """
+
 from src.llm import get_llm
 
 
@@ -15,7 +16,9 @@ def _build_agent():
     try:
         from deepagents import create_deep_agent
     except ImportError:
-        raise RuntimeError("DeepAgents 未安装。请 `pip install deepagents`（需 Python 3.11+）")
+        raise RuntimeError(
+            "DeepAgents 未安装。请 `pip install deepagents`（需 Python 3.11+）"
+        )
 
     # 把 LlamaIndex 检索器包装成工具，演示产品协作
     def search_knowledge_base(query: str) -> str:

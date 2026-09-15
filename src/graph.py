@@ -9,6 +9,7 @@ graph.py —— LangGraph 有状态研究工作流
 
 State 是跨节点共享的「黑板」。Checkpointer 提供持久化（断点恢复/人机协同）。
 """
+
 from typing import TypedDict
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
@@ -58,7 +59,12 @@ def reflect_node(state: ResearchState) -> dict:
     llm = get_llm()
     msg = llm.invoke(
         [
-            SystemMessage(content=("判断当前资料是否足以回答。若足够回复『OK』；" "否则回复『MORE: <还需要什么>』。")),
+            SystemMessage(
+                content=(
+                    "判断当前资料是否足以回答。若足够回复『OK』；"
+                    "否则回复『MORE: <还需要什么>』。"
+                )
+            ),
             HumanMessage(
                 content=f"问题：{state['query']}\n资料：\n{state.get('context', '')}"
             ),

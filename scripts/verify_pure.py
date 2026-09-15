@@ -6,6 +6,7 @@ verify_pure.py —— 纯标准库验证（零第三方依赖）
 
 运行：python scripts/verify_pure.py
 """
+
 import sys
 from pathlib import Path
 
@@ -21,7 +22,11 @@ def should_continue(state: dict) -> str:
 
 def test_branch():
     cases = [
-        ({"reflection": "MORE: 需要更多资料", "iterations": 1}, "retrieve", "资料不足 → 再检索"),
+        (
+            {"reflection": "MORE: 需要更多资料", "iterations": 1},
+            "retrieve",
+            "资料不足 → 再检索",
+        ),
         ({"reflection": "MORE: 仍不足", "iterations": 2}, "write", "达上限 → 停止写作"),
         ({"reflection": "OK 足够了", "iterations": 1}, "write", "资料充足 → 写作"),
         ({"reflection": "", "iterations": 0}, "write", "无反思内容 → 默认写作"),

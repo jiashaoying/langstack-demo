@@ -9,6 +9,7 @@ ui.py —— Gradio Web UI（给非技术同事演示）
 
 注意：必须用 `-m` 方式运行（原因见 src/main.py 顶部说明）。
 """
+
 import argparse
 
 import gradio as gr
@@ -81,7 +82,8 @@ def main():
 
     with gr.Blocks(title="深度研究助手 Demo", theme=gr.themes.Soft()) as demo:
         gr.Markdown(
-            "# 🔬 深度研究助手 Demo\n" "基于 **LangChain + LlamaIndex + LangGraph + DeepAgents**"
+            "# 🔬 深度研究助手 Demo\n"
+            "基于 **LangChain + LlamaIndex + LangGraph + DeepAgents**"
         )
 
         with gr.Row():

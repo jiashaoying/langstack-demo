@@ -11,6 +11,7 @@ retriever.py —— LlamaIndex 数据/RAG 层
   llama_index 即可运行；只有真正调用 build_index_from_dir / get_retriever
   时才会触发真实 import。
 """
+
 from pathlib import Path
 
 from src.config import settings

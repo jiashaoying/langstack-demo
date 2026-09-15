@@ -25,6 +25,7 @@ LangSmith 集成（可选）：
   设 LANGSMITH_API_KEY 与 LANGSMITH_TRACING=true 后，结果自动上报，
   可在后台做在线评测、回归对比、数据集版本管理。
 """
+
 import os
 import sys
 from dataclasses import asdict, dataclass, field
@@ -111,7 +112,9 @@ def llm_judge_scorer(case: EvalCase, answer: str) -> EvalResult:
     judge = get_llm(temperature=0)
     msg = judge.invoke(
         [
-            SystemMessage(content="你是严格的评分裁判。按 rubric 打分 0-1，只输出数字。"),
+            SystemMessage(
+                content="你是严格的评分裁判。按 rubric 打分 0-1，只输出数字。"
+            ),
             HumanMessage(
                 content=(
                     f"问题：{case.query}\n"
@@ -179,7 +182,9 @@ def run_evaluation(
         if case.requires_rag:
             rag_results.append(result)
         status = "✅" if result.passed else "❌"
-        print(f"{status} {case.query[:30]:30s} 得分={result.score:.2f}  {result.reason}")
+        print(
+            f"{status} {case.query[:30]:30s} 得分={result.score:.2f}  {result.reason}"
+        )
 
     if not results:
         print("\n⚠️ 没有可评分的用例（全部跳过）")

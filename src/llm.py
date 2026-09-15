@@ -4,6 +4,7 @@ llm.py —— LangChain 模型抽象层
 定位：演示 LangChain 的核心价值 —— 用统一接口切换不同模型。
 业务代码只依赖 ChatModel 协议，不关心底层是 OpenAI / Anthropic / Google。
 """
+
 from langchain_core.language_models import BaseChatModel
 
 from src.config import settings
