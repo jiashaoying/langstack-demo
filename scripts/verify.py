@@ -187,6 +187,44 @@ def test_reflect_loop():
     print("✅ 循环/分支逻辑正确（再检索 / 停止写作）")
 
 
+def test_ui_stream_flow():
+    """UI 的逐步过程依赖 stream_mode='updates'。
+
+    这里曾经误用 'values'：该模式下每个 chunk 是「完整 state」（一个 dict），
+    解包成 (节点名, state) 会直接抛
+    `too many values to unpack (expected 2)` —— 即 Web UI 上那个报错。
+    旧测试只覆盖 run_research()（invoke 路径），从没走到 stream，故 bug 溜过 CI。
+    本用例把这条路径固化下来，避免回归。
+    """
+    if not _has("gradio"):
+        print("⚠️ 跳过 UI stream 用例：未安装 gradio")
+        return
+
+    import src.ui as ui
+
+    def fake_invoke(messages, **kw):
+        sys_msg = next(
+            (m for m in messages if getattr(m, "type", "") == "system"), None
+        )
+        text = sys_msg.content if sys_msg else ""
+        if "研究要点" in text:
+            return MagicMock(content="1. 定位\n2. 场景")
+        if "是否足以回答" in text:
+            return MagicMock(content="OK")
+        return MagicMock(content="【Mock 最终答案】来自 UI 的答复。")
+
+    with patch("src.graph.build_index_from_dir", return_value=None), patch(
+        "src.graph.format_context", return_value="【Mock 资料】"
+    ), patch("src.graph.get_llm") as mock_get:
+        mock_get.return_value = MagicMock(invoke=fake_invoke)
+        steps, answer = ui.run_research("测试问题", use_deep=False)
+
+    assert "❌" not in steps, f"UI 执行失败：{steps}"
+    assert "执行节点" in steps, f"未展示节点过程：{steps}"
+    assert "Mock 最终答案" in answer, f"答案异常：{answer}"
+    print("✅ UI stream 流程通过（updates 模式解包正常）")
+
+
 if __name__ == "__main__":
     if not FULL_MODE:
         missing = [
@@ -208,5 +246,6 @@ if __name__ == "__main__":
         test_graph_structure()
         test_full_flow()
         test_reflect_loop()
+        test_ui_stream_flow()
         print("\n🎉 全部验证通过！项目结构无语法/导入错误。")
         print("   下一步：填入真实 API Key 后运行  python -m src.main '你的问题'")

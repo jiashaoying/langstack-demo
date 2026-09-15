@@ -32,41 +32,55 @@ def run_research(query: str, use_deep: bool = False):
     final_answer = ""
 
     try:
+        # ---- 进阶：DeepAgents ----
+        # 复用 src.deep_research，而不是在这里自己 create_deep_agent：
+        # 那边用的是 get_llm()，会跟随 .env 的 LLM_PROVIDER / LLM_MODEL；
+        # 若在此硬编码 model="openai:gpt-4o-mini"，配了方舟的用户一切到满配模式就会
+        # 因缺少 OpenAI 官方 Key 而失败。
         if use_deep:
-            from deepagents import create_deep_agent
-
             steps.append("🚀 使用 DeepAgents 满配模式")
-            agent = create_deep_agent(
-                model="openai:gpt-4o-mini",
-                tools=[],
-                system_prompt="你是研究助手，先列计划再检索，最后出带引用的报告。",
-            )
-            result = agent.invoke({"messages": [{"role": "user", "content": query}]})
-            final_answer = result["messages"][-1].content
-            steps.append("✅ 完成")
-        else:
-            steps.append("🚀 开始研究...")
-            thread_id = "ui-session"
-            for step_name, state in graph.stream(
-                {"query": query, "messages": [HumanMessage(content=query)]},
-                {"configurable": {"thread_id": thread_id}},
-                stream_mode="values",
-            ):
+            try:
+                from src.deep_research import run_deep_research
+
+                final_answer = run_deep_research(query)
+                steps.append("✅ 完成")
+                return "\n".join(steps), final_answer
+            except (ImportError, RuntimeError) as e:
+                steps.append(f"⚠️ DeepAgents 不可用：{e}")
+                steps.append("   已自动回退到 LangGraph 标准模式\n")
+
+        # ---- 标准：LangGraph 工作流 ----
+        steps.append("🚀 开始研究...")
+        thread_id = "ui-session"
+        cfg = {"configurable": {"thread_id": thread_id}}
+
+        # stream_mode 必须用 "updates"：
+        #   updates → 每个 chunk 是 {节点名: 该节点返回的增量}，能拿到节点名
+        #   values  → 每个 chunk 是「完整 state」这个 dict，把它解包成
+        #             (节点名, state) 两个值会直接抛 "too many values to unpack"
+        for chunk in graph.stream(
+            {"query": query, "messages": [HumanMessage(content=query)]},
+            cfg,
+            stream_mode="updates",
+        ):
+            for step_name, update in chunk.items():
+                update = update if isinstance(update, dict) else {}
                 steps.append(f"📍 执行节点: **{step_name}**")
-                if step_name == "plan" and state.get("plan"):
-                    steps.append(f"   📋 计划: {state['plan']}")
-                elif step_name == "retrieve" and state.get("context"):
-                    ctx = state["context"]
-                    steps.append(f"   🔍 检索到资料（{len(str(ctx))} 字符）")
+                if step_name == "plan" and update.get("plan"):
+                    steps.append(f"   📋 计划: {update['plan']}")
+                elif step_name == "retrieve":
+                    ctx_len = len(str(update.get("context", "")))
+                    steps.append(f"   🔍 检索到资料（{ctx_len} 字符）")
                 elif step_name == "reflect":
                     steps.append("   🤔 反思中...")
                 elif step_name == "write":
                     steps.append("   ✍️ 生成最终答案...")
-            final_state = graph.get_state({"configurable": {"thread_id": thread_id}})
-            if final_state and final_state.values.get("messages"):
-                final_answer = final_state.values["messages"][-1].content
-            else:
-                final_answer = "未能生成答案"
+
+        final_state = graph.get_state(cfg)
+        if final_state and final_state.values.get("messages"):
+            final_answer = final_state.values["messages"][-1].content
+        else:
+            final_answer = "未能生成答案"
 
         return "\n".join(steps), final_answer
 
