@@ -27,7 +27,7 @@ services:
       # 挂载源码，改代码无需重新构建
       - ./src:/app/src
     restart: unless-stopped
-    command: python src/ui.py --server-name 0.0.0.0 --server-port 7860
+    command: python -m src.ui --server-name 0.0.0.0 --server-port 7860
 
   # ----------------------------------------------------------
   # 服务 2: Jupyter Notebook (交互式学习)

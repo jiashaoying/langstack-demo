@@ -70,7 +70,7 @@ docker compose down
 docker compose exec web bash
 
 # 跑一次 CLI（临时覆盖 command）
-docker compose run --rm web python src/main.py "你的问题"
+docker compose run --rm web python -m src.main "你的问题"
 
 # 清理：停止 + 删除镜像 + 清理 dangling
 docker compose down --rmi local

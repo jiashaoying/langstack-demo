@@ -206,4 +206,4 @@ if __name__ == "__main__":
         test_full_flow()
         test_reflect_loop()
         print("\n🎉 全部验证通过！项目结构无语法/导入错误。")
-        print("   下一步：填入真实 API Key 后运行  python src/main.py '你的问题'")
+        print("   下一步：填入真实 API Key 后运行  python -m src.main '你的问题'")

@@ -68,4 +68,4 @@ USER appuser
 EXPOSE 7860
 
 # 默认启动 Gradio Web UI；可通过 docker-compose command 覆盖为 CLI/verify
-CMD ["sh", "-c", "python src/ui.py --server-name 0.0.0.0 --server-port 7860"]
+CMD ["sh", "-c", "python -m src.ui --server-name 0.0.0.0 --server-port 7860"]

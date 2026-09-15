@@ -131,9 +131,9 @@ LANGSMITH_API_KEY=lsv2_...
 
 | 入口 | 命令 | 用途 |
 | :--- | :--- | :--- |
-| **CLI** | `python src/main.py "你的问题"` | 快速测试 |
-| **CLI (DeepAgents)** | `python src/main.py "问题" --deep` | 满配自主模式 |
-| **Web UI** | `python src/ui.py` → http://localhost:7860 | 给同事演示 |
+| **CLI** | `python -m src.main "你的问题"` | 快速测试 |
+| **CLI (DeepAgents)** | `python -m src.main "问题" --deep` | 满配自主模式 |
+| **Web UI** | `python -m src.ui` → http://localhost:7860 | 给同事演示 |
 | **Notebook** | `jupyter notebook notebooks/01_explore.ipynb` | 单步调试学习 |
 | **Docker Web** | `docker compose up web` | 容器化部署 |
 | **Docker Jupyter** | `docker compose up jupyter` | 容器化 Notebook |
@@ -153,15 +153,15 @@ cp .env.example .env
 python scripts/verify.py
 
 # 5. 正式运行
-python src/main.py "调研 LangGraph 与 DeepAgents 的取舍"
+python -m src.main "调研 LangGraph 与 DeepAgents 的取舍"
 ```
 
 ## 三种使用入口
 
 ### 🖥️ CLI（快速测试）
 ```bash
-python src/main.py "你的问题"          # LangGraph 模式
-python src/main.py "你的问题" --deep  # DeepAgents 模式
+python -m src.main "你的问题"          # LangGraph 模式
+python -m src.main "你的问题" --deep  # DeepAgents 模式
 ```
 
 ### 📓 Jupyter Notebook（交互式学习）
@@ -172,7 +172,7 @@ jupyter notebook notebooks/01_explore.ipynb
 
 ### 🌐 Gradio Web UI（给同事演示）
 ```bash
-python src/ui.py
+python -m src.ui
 # 浏览器打开 http://localhost:7860
 ```
 左侧输入问题，右侧实时显示「执行过程」和「最终答案」，直观看到 plan→retrieve→reflect→write 的流转。
@@ -266,7 +266,7 @@ lint → verify-pure → verify-full → evaluate → docker build → gate
 | DeepAgents 报 ImportError | `pip install deepagents`（需 Python 3.11+） |
 | LlamaIndex 报 ImportError | `pip install llama-index`（`verify.py` 无需此步） |
 | API 报 401 | 检查 `.env` 中 API Key 是否正确 |
-| Gradio 端口占用 | `python src/ui.py --server-port 8080` |
+| Gradio 端口占用 | `python -m src.ui --server-port 8080` |
 
 ---
 

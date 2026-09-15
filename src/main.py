@@ -2,8 +2,11 @@
 main.py —— 统一 CLI 入口
 
 用法：
-    python src/main.py "你的问题"            # 用 LangGraph 工作流
-    python src/main.py "你的问题" --deep     # 用 DeepAgents（需安装）
+    python -m src.main "你的问题"            # 用 LangGraph 工作流
+    python -m src.main "你的问题" --deep     # 用 DeepAgents（需安装）
+
+注意：必须用 `-m` 方式运行。直接 `python src/main.py` 会把 `src/` 而不是项目根
+      目录放进 sys.path，导致 `from src.xxx import` 报 ModuleNotFoundError。
 
 环境变量：
     LANGSMITH_TRACING=true  开启后可在 LangSmith 后台看完整 trace
@@ -30,9 +33,17 @@ def main():
 
     if args.deep:
         # ---- 进阶：DeepAgents ----
-        from src.deep_research import run_deep_research
+        # deepagents 未安装（或初始化失败）时优雅降级，而不是把 traceback 甩给用户
+        try:
+            from src.deep_research import run_deep_research
 
-        answer = run_deep_research(question)
+            answer = run_deep_research(question)
+        except (ImportError, RuntimeError) as e:
+            print(f"⚠️  DeepAgents 模式不可用：{e}")
+            print("    已自动回退到 LangGraph 标准模式\n")
+            from src.graph import run_research
+
+            answer = run_research(question)
     else:
         # ---- 默认：LangGraph 工作流 ----
         from src.graph import run_research

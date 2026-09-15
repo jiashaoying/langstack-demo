@@ -1,11 +1,13 @@
 """
 ui.py —— Gradio Web UI（给非技术同事演示）
 
-运行:  python src/ui.py
+运行:  python -m src.ui
 访问:  http://localhost:7860
 
 可通过命令行参数覆盖默认 host/port：
-    python src/ui.py --server-name 0.0.0.0 --server-port 7860
+    python -m src.ui --server-name 0.0.0.0 --server-port 7860
+
+注意：必须用 `-m` 方式运行（原因见 src/main.py 顶部说明）。
 """
 import argparse
 
