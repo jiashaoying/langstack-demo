@@ -1,0 +1,84 @@
+# MkDocs 配置 —— LangStack 个人 Demo 文档站
+# 本地预览：mkdocs serve
+# 在线地址：https://jiashaoying.github.io/langstack-demo/
+site_name: LangStack Demo 文档
+site_description: LangChain + LangGraph + DeepAgents + LlamaIndex + LangSmith 深度研究助手 Demo 文档
+site_url: https://jiashaoying.github.io/langstack-demo/
+site_author: jiashaoying
+
+# 仓库信息（启用右上角「编辑此页」）
+repo_url: https://github.com/jiashaoying/langstack-demo
+repo_name: jiashaoying/langstack-demo
+edit_uri: edit/main/docs/
+
+# 版权
+copyright: MIT License · Built with MkDocs Material
+
+theme:
+  name: material
+  language: zh
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: 切换至深色模式
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: 切换至浅色模式
+  features:
+    - navigation.tabs          # 顶部标签导航
+    - navigation.sections      # 章节分组
+    - navigation.top           # 返回顶部按钮
+    - navigation.footer        # 上一篇/下一篇
+    - search.suggest           # 搜索建议
+    - search.highlight         # 搜索结果高亮
+    - content.code.copy        # 代码块复制按钮
+    - content.code.annotate    # 代码注释
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - 首页: index.md
+  - 快速开始: getting-started.md
+  - 架构详解: architecture.md
+  - 使用指南: usage.md
+  - 配置与模型切换: configuration.md
+  - Docker 部署: deployment.md
+  - 测试与评测: evaluation.md
+  - CI/CD: ci.md
+  - 学习路径: learning-path.md
+  - 故障排查: troubleshooting.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition                      # !!! note / warning 等提示框
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - tables
+  - attr_list                      # 按钮（.md-button）
+  - toc:
+      permalink: true
+      toc_depth: 3

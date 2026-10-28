@@ -8,6 +8,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-green.svg)](https://www.python.org/downloads/)
 [![CI](https://github.com/jiashaoying/langstack-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/jiashaoying/langstack-demo/actions)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://jiashaoying.github.io/langstack-demo/)
+
+> 📖 **完整文档见 GitHub Pages：https://jiashaoying.github.io/langstack-demo/**
+> 本 README 是快速入口；架构、配置、评测、CI 等详细说明在文档站中。
 
 ---
 
@@ -75,6 +79,12 @@ langstack-demo/
 ├── LANGSMITH_EVAL.md       # LangSmith 评测指南
 ├── requirements.txt        # Python 依赖
 ├── ruff.toml               # lint 配置
+├── mkdocs.yml              # 文档站配置
+├── docs/                   # 文档源（构建为 GitHub Pages）
+│   ├── index.md            # 首页
+│   ├── getting-started.md  # 快速开始
+│   ├── architecture.md     # 架构详解
+│   └── ...                 # 其余见文档站导航
 ├── data/
 │   ├── sample.txt          # 示例文档（RAG 默认检索源）
 │   ├── internal_faq.txt    # 私有文档：RAG 评测依赖它
@@ -316,6 +326,33 @@ docker ────────┘
 6. 设好 `LANGSMITH_TRACING=true` 后在 LangSmith 后台看完整 trace 树
 7. 接自己的数据：把文档放进 `data/`，必要时改 `src/retriever.py`
 8. 演示给非技术同事：`python -m src.ui`
+
+## 📖 文档站
+
+完整文档托管在 GitHub Pages（MkDocs Material 构建，含全文搜索、深浅色切换）：
+
+**https://jiashaoying.github.io/langstack-demo/**
+
+| 页面 | 内容 |
+| :--- | :--- |
+| 快速开始 | 克隆 → 配置 → 第一条回答 |
+| 架构详解 | 分层设计与模块职责、工作流状态机 |
+| 使用指南 | CLI / Web UI / Notebook 三种入口 |
+| 配置与模型切换 | 方舟 / OpenAI / Anthropic、embedding |
+| Docker 部署 | 容器化运行三种服务 |
+| 测试与评测 | 离线验证、LangSmith 三层评测 |
+| CI/CD | GitHub Actions 流水线说明 |
+| 学习路径 | 按文件顺序读懂全项目 |
+| 故障排查 | 常见报错速查 |
+
+### 本地预览文档站
+
+```bash
+pip install mkdocs-material
+mkdocs serve   # http://localhost:8000
+```
+
+`docs/` 内容有改动时，push 到 `main` 会自动重新构建部署（`.github/workflows/deploy-pages.yml`）。
 
 ## 说明
 
