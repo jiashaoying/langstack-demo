@@ -15,8 +15,8 @@ hide:
 - **DeepAgents** → 满配自主 Agent（规划 + 子代理 + 文件系统）
 - **LangSmith** → 全链路追踪与评测
 
-这不是"又一个 Chatbot 模板"，而是一个**教学 + 工程骨架**：从组件调用到复杂 Agent
-编排，从本地调试到 Docker 部署、CI 评测，一站式体验 LLM 工程化全链路。
+这是一套**教学 + 工程骨架**（不是又一个 Chatbot 模板）：从组件调用到复杂 Agent
+编排，从本地调试到 Docker 部署、CI 评测，完整跑通 LLM 工程化链路。
 
 [快速开始](getting-started.md){ .md-button .md-button--primary }
 [架构详解](architecture.md){ .md-button }

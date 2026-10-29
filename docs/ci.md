@@ -42,7 +42,7 @@ flowchart TB
 
 `verify-full` 会把 embedding 模型缓存到 `.cache/fastembed`（已 gitignore）：
 
-- **Key 用 `src/config.py` 的 hash**：默认 `EMBEDDING_MODEL` 定义在其中，
+- 缓存 Key 用 `src/config.py` 的 hash：默认 `EMBEDDING_MODEL` 定义在其中，
   换模型时它必然变动，缓存随之自动失效，无需手工维护版本号
 - `FASTEMBED_CACHE_PATH` 固定到仓库内路径，runner 上才能被 `actions/cache` 命中
 - 命中缓存后不再重复下载约 90MB 的模型
