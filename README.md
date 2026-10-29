@@ -3,7 +3,7 @@
 一套跑通 **LangChain + LangGraph + DeepAgents + LlamaIndex + LangSmith** 的最小可运行示例。
 通过「深度研究助手」这一场景，直观感受各产品的定位与协作方式。
 
-> 一个覆盖 LangChain 全家桶的个人 Demo 项目，从组件调用到复杂 Agent 编排，从本地调试到 Docker 部署、CI 评测，一站式体验 LLM 工程化全链路。
+> 一个覆盖 LangChain 全家桶的个人 Demo 项目，从组件调用到复杂 Agent 编排，从本地调试到 Docker 部署、CI 评测，完整跑通 LLM 工程化链路。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-green.svg)](https://www.python.org/downloads/)
@@ -17,7 +17,7 @@
 
 ## 📌 它是什么
 
-这个项目不是"又一个 Chatbot 模板"，而是一个**教学 + 工程骨架**：
+这是一个**教学 + 工程骨架**（不是又一个 Chatbot 模板）：
 
 - **LangChain** → 模型 / 工具 / 提示的通用胶水层
 - **LlamaIndex** → 数据摄取、索引、RAG 检索
